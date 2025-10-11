@@ -3,6 +3,8 @@ const path = require('path')
 
 const sendMail = async (recepient, cc, subject, content, fileUrl) => {
     try {
+        console.log('fileUrl',fileUrl);
+        
         // const attachmentPath = path.join(__dirname, "../uploads/Hariharan A Resume_0f75505b-78e6-49b7-ab7e-04c4641ebd77.pdf")
         const transport = nodemailer.createTransport({
             service: "gmail",

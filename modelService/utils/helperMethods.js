@@ -18,7 +18,7 @@ const getModelLLM = (modelName, keyId, tokenLimit, key) => {
             let geminiKey = key ?? process.env[`GEMINI_API_KEY${keyId}`]
             if (modelName === 'FLASH') {
                 model = new ChatGoogleGenerativeAI({
-                    model: 'gemini-1.5-flash',
+                    model: 'gemini-2.0-flash',
                     apiKey: geminiKey,
                     temperature: 0.5,
                     maxOutputTokens: tokenLimit,

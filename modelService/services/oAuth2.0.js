@@ -66,10 +66,10 @@ const setToken = () => {
     })
 }
 
-const createEvent = async (meetingInfo, oAuth2Client, tool) => {
+const createEvent = async (meetingInfo, oAuth2Client, tool, isRecurring = false) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const { attendees, meetingDate, startTime, endTime, title, venue } = meetingInfo;
+            const { attendees, meetingDate, startTime, endTime, title, venue, recurringType, recurringCount, recurringUntil } = meetingInfo;
             const calendar = google.calendar({ version: "v3", auth: oAuth2Client });
             let event = {
                 summary: title,
@@ -89,6 +89,16 @@ const createEvent = async (meetingInfo, oAuth2Client, tool) => {
                 event['conferenceData'] = {
                     createRequest: { requestId: "meet-" + Date.now() }
                 }
+            }
+
+            if (isRecurring) {
+                let rule = "FREQ=DAILY";
+                if (recurringType === "weekly") rule = "FREQ=WEEKLY";
+                if (recurringType === "monthly") rule = "FREQ=MONTHLY";
+                if (recurringCount) rule += `;COUNT=${recurringCount}`;
+                if (recurringUntil) rule += `;UNTIL=${recurringUntil}T235959Z`;
+        
+                event.recurrence = [`RRULE:${rule}`];
             }
 
             const response = await calendar.events.insert({

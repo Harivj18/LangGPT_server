@@ -78,7 +78,7 @@ const cleanRetrievedDoc = (ragData) => {
 
 const summarizeContext = async function* (context, question) {
     try {
-        const model = await getModelLLM('flash',3);
+        const model = await getModelLLM('flash',10);
 
         const memory = new BufferMemory({
             returnMessages: true,
@@ -169,10 +169,10 @@ const embedUploadDoc = (filePath, docType) => {
     })
 }
 
-function chunkArray(array, size) {
+function chunkArray(data, size) {
     const chunks = [];
-    for (let i = 0; i < array.length; i += size) {
-        chunks.push(array.slice(i, i + size));
+    for (let i = 0; i < data.length; i += size) {
+        chunks.push(data.slice(i, i + size));
     }
     return chunks;
 }

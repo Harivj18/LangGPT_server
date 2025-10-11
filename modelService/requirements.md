@@ -21,3 +21,15 @@
 21. googleapis
 22. mongoose
 23. @langchain/mongodb
+24. bullmq
+25. ioredis
+26. @langchain/langgraph
+27. node-notifier
+28. passport
+29. passport-google-oauth2
+30. passport-github2
+31. express-session
+32. cookie-parser
+33. bcrypt
+34. lodash
+35. jsonwebtoken

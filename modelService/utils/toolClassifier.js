@@ -1,8 +1,9 @@
-const { calendarTool } = require('../tools/calendarTool')
-const { weatherTool } = require('../tools/weatherTool')
-const { mailTool } = require('../tools/mailTool')
-const { searchTool } = require('../tools/searchTool')
-const { timeTool } = require('../tools/timeTool')
+const { calendarTool } = require('../tools/calendarTool');
+const { weatherTool } = require('../tools/weatherTool');
+const { mailTool } = require('../tools/mailTool');
+const { searchTool } = require('../tools/searchTool');
+const { timeTool } = require('../tools/timeTool');
+const { jobScheduler } = require('../tools/jobScheduler');
 const toolClassifier = async (tool, query) => {
     try {
         tool = tool.toLowerCase()
@@ -24,6 +25,9 @@ const toolClassifier = async (tool, query) => {
 
             case 'time':
                 return await timeTool(query)
+
+            case 'job':
+                return await jobScheduler(query)
 
             default:
                 return await timeTool(query)

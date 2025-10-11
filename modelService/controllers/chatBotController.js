@@ -7,7 +7,8 @@ const { v4: uuid } = require('uuid');
 const { setToken } = require('../services/oAuth2.0')
 const { toolClassifier } = require('../utils/toolClassifier');
 const { storeMessageHistory } = require('../services/chatHistory');
-const { messageProducer } = require('../broker/messageProducer')
+const { messageProducer } = require('../broker/messageProducer');
+const { classifyAgent } = require('../tools/agentClassifier')
 
 const askLLM = async (req, res) => {
     try {
@@ -20,7 +21,7 @@ const askLLM = async (req, res) => {
         const { signal } = controller;
 
         req.on("close", () => {
-            console.log("❌ Request aborted by client");
+            console.log(" Request aborted by client");
             controller.abort();
         });
 
@@ -37,16 +38,27 @@ const askLLM = async (req, res) => {
 
             console.log('llmOutput', llmOutput);
 
-            let sessionInfo = chatId ?? uuid()
+            if (mode === "GENERAL" && llmOutput.trim() === "AgentTool") {
+                llmOutput = await agentTool(query);
+            }
+            let sessionInfo = chatId ?? uuid();
+
             console.log('chatId', chatId);
-            
-            let newChat = chatId ? false : true
-            await messageProducer(sessionInfo, query, llmOutput, newChat)
-            // const messageHistory = await storeMessageHistory(sessionInfo)
-            // await messageHistory.addConversation(query, llmOutput, newChat);
-            
-            // await messageHistory.addUserMessage(query);
-            // await messageHistory.addAIMessage(llmOutput);
+
+            // let newChat = chatId ? false : true
+            let newChat = chatId ? 'edit' : 'add'
+            console.log('neeeee', newChat);
+
+            await messageProducer('key1', sessionInfo, query, llmOutput, newChat)
+
+            /* 
+                const messageHistory = await storeMessageHistory(sessionInfo)
+                await messageHistory.addConversation(query, llmOutput, newChat);
+
+                await messageHistory.addUserMessage(query);
+                await messageHistory.addAIMessage(llmOutput);
+            */
+
             return res.status(200).json({
                 "success": true,
                 "message": "langGPT Process Success",
@@ -96,8 +108,16 @@ const uploadUserDoc = async (req, res) => {
         await embedUploadDoc(req.file.path, extension);
         console.log('Embedding Completed Successfully !!');
         let sessionInfo = chatId ?? uuid()
-        const messageHistory = await storeMessageHistory(sessionInfo)
-        await messageHistory.addConversation(req.file.originalname, fileUrl, newChat);
+        // let newChat = chatId ? false : true
+        let newChat = chatId ? 'edit' : 'add'
+
+        await messageProducer('key1', sessionInfo, req.file.originalname, fileUrl, newChat)
+
+        /*
+            const messageHistory = await storeMessageHistory(sessionInfo)
+            await messageHistory.addConversation(req.file.originalname, fileUrl, newChat);
+        */
+
         return res.status(200).json({
             success: true,
             message: "Document Uploaded",
@@ -137,13 +157,19 @@ const useThirdPartyTools = async (req, res) => {
         console.log('tool', tool);
         console.log('query', query);
         console.log('chatId', chatId);
-        let newChat = chatId ? false : true
+        // let newChat = chatId ? false : true
+        let newChat = chatId ? 'edit' : 'add'
 
         const executionResult = await toolClassifier(tool, query)
         console.log('executionResult', executionResult);
         let sessionInfo = chatId ?? uuid()
-        const messageHistory = await storeMessageHistory(sessionInfo)
-        await messageHistory.addConversation(query, executionResult, newChat);
+
+        await messageProducer('key1', sessionInfo, query, executionResult, newChat)
+
+        /*
+            const messageHistory = await storeMessageHistory(sessionInfo)
+            await messageHistory.addConversation(query, executionResult, newChat);
+        */
         return res.status(200).json({
             "success": true,
             "message": "LangGPT Tools Executed",
@@ -277,22 +303,24 @@ const oAuthVerification = async (req, res) => {
     }
 }
 
-const chatHistory = async (req, res) => {
+const chatHistory = (req, res) => {
     try {
         let {
             chatId
         } = req.params;
         console.log('chatHistory', chatId);
 
-        const messageHistory = await storeMessageHistory(chatId);
-        const message = await messageHistory.getMessages()
-        console.log('message', message);
+        setTimeout(async () => {
+            const messageHistory = await storeMessageHistory(chatId);
+            const message = await messageHistory.getMessages()
+            console.log('message', message);
+            return res.json({
+                success: true,
+                message: 'Messages Retrieved',
+                data: message
+            })
+        }, 10000);
 
-        return res.json({
-            success: true,
-            message: 'Messages Retrieved',
-            data: message
-        })
     } catch (error) {
         console.error('chatBotController.js: chatHistory => Unable to retrieve chat history', error);
         return res.status(500).json({
@@ -329,6 +357,8 @@ const editTitle = async (req, res) => {
         const { chatId, title } = req.body;
         console.log('edit', chatId, title);
 
+        // await messageProducer(chatId, '', title, 'edit')
+
         const messageTitles = await storeMessageHistory(chatId);
         const editedInfo = await messageTitles.updateTitle(title);
         console.log('editedInfo', editedInfo);
@@ -351,8 +381,8 @@ const deleteChat = async (req, res) => {
     try {
         const { chatId } = req.params;
 
-        const messageHistory = await messageHistory.deleteTitle(chatId);
-        const deleteThread = await messageHistory.deleteThread()
+        const messageHistory = await storeMessageHistory(chatId);
+        await messageHistory.deleteThread()
 
         return res.json({
             success: true,
@@ -387,6 +417,18 @@ async function collectFull(stream) {
     }
     return text;
 }
+
+const agentTool = async (query) => {
+    try {
+        let agentInfo = await classifyAgent(query)
+        const executionResult = await toolClassifier(agentInfo, query)
+        return executionResult
+    } catch (error) {
+        console.error('agentClassifier.js : agentTool => Something wrong while executing agent', error);
+        return error;
+    }
+}
+
 
 module.exports = {
     askLLM,

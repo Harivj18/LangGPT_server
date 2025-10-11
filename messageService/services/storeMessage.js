@@ -38,8 +38,8 @@ class CombinedChatHistory {
 
     async addConversation(userMessage, aiMessage, newChat) {
         let title = aiMessage.slice(0, 15);
-        console.log('addConversation');
-        if (newChat && newChat !== 'new') {
+        console.log('addConversation', newChat);
+        if (newChat && newChat === 'add') {
 
             let llm = await getModelLLM('flash', 1, 100, process.env.GEMINI_API_KEY1);
             
@@ -74,6 +74,8 @@ class CombinedChatHistory {
                 updated_on: new Date(),
             });
         } else {
+            console.log('edited');
+            
             const doc = await this.collection.updateOne(
                 { sessionId: this.sessionId, type: "chatHistory" },
                 {

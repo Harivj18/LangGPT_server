@@ -1,5 +1,5 @@
 const { Kafka } = require('kafkajs');
-const { saveConversation } = require('../controllers/messageController')
+const { messageClassifier } = require('../controllers/messageController')
 
 const messageConsumer = async () => {
     try {
@@ -8,9 +8,9 @@ const messageConsumer = async () => {
             brokers: ["localhost:9092"]
         });
 
-        const consumer = kafka.consumer({ groupId: "msg-group" });
+        const consumer = kafka.consumer({ groupId: "msg-group", allowAutoTopicCreation: true });
         await consumer.connect();
-        await consumer.subscribe({ topic: "saveChat" });
+        await consumer.subscribe({ topic: "saveChat" , fromBeginning: false});
 
         await consumer.run({
             eachMessage: async ({ topic, partition, message }) => {
@@ -21,8 +21,7 @@ const messageConsumer = async () => {
                     value: JSON.parse(message.value.toString())
                 });
                 let inputJson = JSON.parse(message.value.toString())
-
-                await saveConversation(inputJson)
+                await messageClassifier(inputJson)
             }
         });
     } catch (error) {

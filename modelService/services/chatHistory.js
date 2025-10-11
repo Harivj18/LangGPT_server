@@ -99,9 +99,10 @@ class CombinedChatHistory {
     }
 
     async getMessages() {
+
+        console.log('this.sessionId', this.sessionId);
         const doc = await this.collection.findOne({ sessionId: this.sessionId });
         console.log('doc', doc);
-        console.log('this.sessionId', this.sessionId);
 
         if (!doc || !doc.messages) return [];
 

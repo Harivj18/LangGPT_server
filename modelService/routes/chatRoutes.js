@@ -18,7 +18,7 @@ routes.post('/langGPT/chat', askLLM);
 routes.get('/langGPT/titles/list', chatTitles);
 routes.get('/langGPT/:chatId', chatHistory);
 routes.put('/langGPT/edit/:chatId/title', editTitle);
-routes.put('/langGPT/delete/:chatId', deleteChat);
+routes.delete('/langGPT/delete/:chatId', deleteChat);
 
 routes.post('/langGPT/RAG/uploadDocument', upload.single('file'), uploadUserDoc);
 routes.use('/files', express.static(uploadDir));

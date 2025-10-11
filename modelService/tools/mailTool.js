@@ -2,7 +2,7 @@ const { DynamicStructuredTool } = require("langchain/tools");
 const { z } = require("zod");
 const nodemailer = require('nodemailer');
 const { executeAgentTool } = require('../tools/agentExecutor');
-const { RunnableSequence } = require("@langchain/core/runnables");
+const { RunnableSequence, RunnablePassthrough } = require("@langchain/core/runnables");
 const { PromptTemplate } = require("@langchain/core/prompts");
 const { resultParser, getModelLLM, outputFixer } = require("../utils/helperMethods");
 const { OutputParserException } = require("@langchain/core/output_parsers");
@@ -78,7 +78,7 @@ const createMailTool = (mailContent) => {
                 to: z.string().describe('To Recepient Mail Id'),
                 cc: z.string().nullable().optional().describe('CC Recepient Mail Id'),
                 subject: z.string().describe("Mail Subject"),
-                fileUrl: z.string().describe("Attachment File Url")
+                fileUrl: z.string().nullable().optional().describe("Attachment File Url")
             }),
             func: async ({ to, cc, subject, fileUrl }) => {
                 return await sendMail(to, cc, subject, mailContent, fileUrl)
@@ -93,7 +93,7 @@ const createMailTool = (mailContent) => {
 const draftMail = (query) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const llm = await getModelLLM('flash',7);
+            const llm = await getModelLLM('flash',9);
 
             const prompt = PromptTemplate.fromTemplate(`
                 You're an helpful AI Mail assistant, generate and provide only the mail content not any subject / email closings info
@@ -114,6 +114,7 @@ const draftMail = (query) => {
             const chain = RunnableSequence.from([
                 prompt,
                 llm,
+                // new RunnablePassthrough(),
                 parser
             ]);
 

@@ -68,7 +68,8 @@ const extractMeetingInfo = (query) => {
                     startTime: z.string().describe("Start Time (HH:MM)"),
                     endTime: z.string().describe("End Time (HH:MM)"),
                     title: z.string().describe("Meet Title"),
-                    venue: z.string().describe("Meeting Venue")
+                    venue: z.string().describe("Meeting Venue"),
+                    recurrence: z.string().nullable().optional().describe("Meeting Day Recurrence")
                 }),
             )
 
