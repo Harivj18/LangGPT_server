@@ -59,33 +59,33 @@ if (cluster.isMaster) {
     });
 
 } else {
-    if (process.env.ROLE === "processor") {
-        console.log(`-------------- Processor worker ${process.pid} started ---------- `);
-        let tools = ["mail", "notification"]
-        const processJob = (job) => {
-            if (job?.data?.tool) {
-                let tool = job?.data?.tool;
-                if (tool.toUpperCase() === "MAIL") {
-                    // await mailTool(job?.data?.query);
-                } else {
-                    // await notifyUser(job?.data?.query)
-                }
-            } else {
-                // await mailTool(job?.data?.query);
-            }
-            console.log(`✅ Job -> ${job} ${job.id} completed for ${job?.data?.query || job?.data}`);
-        }
-        for (const tool of tools) {
-            const worker = new Worker(`${tool}Queue`, processJob, {connection: redisInfo()})
+    // if (process.env.ROLE === "processor") {
+    //     console.log(`-------------- Processor worker ${process.pid} started ---------- `);
+    //     let tools = ["mail", "notification"]
+    //     const processJob = (job) => {
+    //         if (job?.data?.tool) {
+    //             let tool = job?.data?.tool;
+    //             if (tool.toUpperCase() === "MAIL") {
+    //                 // await mailTool(job?.data?.query);
+    //             } else {
+    //                 // await notifyUser(job?.data?.query)
+    //             }
+    //         } else {
+    //             // await mailTool(job?.data?.query);
+    //         }
+    //         console.log(`✅ Job -> ${job} ${job.id} completed for ${job?.data?.query || job?.data}`);
+    //     }
+    //     for (const tool of tools) {
+    //         const worker = new Worker(`${tool}Queue`, processJob, {connection: redisInfo()})
             
-            worker.on("completed", async job => {
-                console.log(`Message Delivery ${job.id} completed for ${job?.data?.query || job?.data}`);
-            });
+    //         worker.on("completed", async job => {
+    //             console.log(`Message Delivery ${job.id} completed for ${job?.data?.query || job?.data}`);
+    //         });
     
-            worker.on("failed", (job, err) => {
-                console.error(`❌ Job ${job.id} failed`, err);
-            });
-        }
+    //         worker.on("failed", (job, err) => {
+    //             console.error(`❌ Job ${job.id} failed`, err);
+    //         });
+    //     }
 
-    }
+    // }
 }
