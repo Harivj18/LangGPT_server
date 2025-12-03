@@ -68,7 +68,6 @@ const documentLoader = (filePath, docType) => {
                 case 'docx':
                     loader = new DocxLoader(filePath);
                     break;
-
                 case 'txt':
                     loader = new TextLoader(filePath);
                     break;

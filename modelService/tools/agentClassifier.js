@@ -54,7 +54,7 @@ const jobClassifier = (query) => {
                     You're a classifier assistant, Classify the given context into one of the following categories:
 
                     - if the context is about email messages, sending, or receiving mail, reply only with 'mail'
-                    - if the context is about events, schedules, or reminders, reply only with 'notify'
+                    - if the context is about events, schedules, or reminders, reply only with 'notification'
 
                     context: {context}
                 `

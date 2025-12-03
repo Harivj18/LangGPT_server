@@ -11,10 +11,7 @@ const generalLLM = async function* (query) {
 
         const model = await getModelLLM('flash', 9);
 
-        // const parser = new StringOutputParser()
-
         const parser = await resultParser(query)
-
 
         const prompt = PromptTemplate.fromTemplate(`
             You're a helpful AI assistant.

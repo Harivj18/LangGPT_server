@@ -129,7 +129,6 @@ const embedUploadDoc = (filePath, docType) => {
         try {
             const pineconeDB = await vectorDB(process.env.PINECONE_INDEX_NAME)
 
-
             const loadDocs = await documentLoader(filePath, docType)
 
             const splitter = new RecursiveCharacterTextSplitter({
